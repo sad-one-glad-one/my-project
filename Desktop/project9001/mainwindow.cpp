@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new QGraphicsScene();
     ui->graphicsView->setScene(scene);
 //делаем сеточку
-    int h=10;
+    int h=20;
     //double alpha =1;
     double x[22][102];
     double y[22][102];
@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     double SR[22][102];
     double SL[22][102];
     int CS;
+    int temp=0;
 
 int n=0;
     for(int i=0;i<22; i++){
@@ -97,13 +98,39 @@ int n=0;
 
 
 
-    //отрисовка пиниса
+
       for(int i=0;i<22; i++){
           for(int j=0; j<102; j++){
               //F=1
               if(F[i][j]==1) {
                  scene->addRect(QRectF(x[i][j],(-1)*y[i][j],h,h),QPen(Qt::black), QBrush(Qt::blue));
               }
+
+
+              if(alpha[i][j]<M_PI_4){
+                  if (F[i][j]<0.5*tan(alpha[i][j])){
+                      CS=1;
+                  }
+                  else if(F[i][j]<1-0.5*tan(alpha[i][j])){
+                      CS=2;
+                  }
+                  else {
+                      CS=4;
+                  }
+              }
+              else if(alpha[i][j]>M_PI_4){
+                  if (F[i][j]<0.5/tan(alpha[i][j])){
+                      CS=1;
+                  }
+                  else if(F[i][j]<(1-0.5/tan(alpha[i][j]))){
+                      CS=3;
+                  }
+                  else{
+                      CS=4;
+                  }
+              }
+
+
 
               switch (CS)
                       {
@@ -113,6 +140,18 @@ int n=0;
                           {
                               SB[i][j] = sqrt(2.0 * F[i][j] * h * h / tan(alpha[i][j]));
                               SR[i][j] = sqrt(2.0 * F[i][j] * h * h * tan(alpha[i][j]));
+//                              qDebug()<<x[i][j]<<y[i][j];
+
+                              if(SB[i][j] or SR[i][j]>0){
+//                                qDebug()<<"x[i][j] = "<<x[i][j]<<"y[i][j] = "<<y[i][j];
+//                                qDebug()<<"SB"<<SB[i][j]<<"SR"<<SR[i][j];
+
+                              double aaa = SB[i][j];
+                              double bbb = SR[i][j];
+                               qDebug()<<aaa+x[i][j]<<(-1)*y[i][j];
+                              QPolygonF polygon;
+                              scene->addPolygon(polygon<<QPointF(-aaa+x[i][j]+h,(-1)*y[i][j]+h)<<QPointF(x[i][j]+h,-bbb-y[i][j]+h)<<QPoint(x[i][j]+h,(-1)*y[i][j]+h),QPen(Qt::black), QBrush(Qt::red));
+                             }
                           }
 
                           if ((Nx[i][j] < 0.0) && (Ny[i][j] < 0.0))
@@ -216,76 +255,25 @@ int n=0;
                               SR[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                               ST[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                           }
-
+                          temp+=j;
                           break;
                       }
-
-
-              if(alpha[i][j]<M_PI_4){
-                  if (F[i][j]<0.5*tan(alpha[i][j])){
-                      CS=1;
-                  }
-                  else if(F[i][j]<1-0.5*tan(alpha[i][j])){
-                      CS=2;
-                  }
-                  else {
-                      CS=4;
-                  }
-              }
-              else if(alpha[i][j]>M_PI_4){
-                  if (F[i][j]<0.5/tan(alpha[i][j])){
-                      CS=1;
-                  }
-                  else if(F[i][j]<(1-0.5/tan(alpha[i][j]))){
-                      CS=3;
-                  }
-                  else{
-                      CS=4;
-                  }
-              }
-
-/*              if(F[i][j]>0 and F[i][j]<1){
-                  if(alpha[i][j]>0 and alpha[i][j] < M_PI_4){
-                      //case I
-                      if(F[i][j]>0 and F[i][j]<(1/2)*tan(alpha[i][j])){
-                          //cas1a++;
-                      }
-                      //case II
-                      if(F[i][j]>(1/2)*tan(alpha[i][j]) and F[i][j]<1-(1/2)*tan(alpha[i][j])){
-                          //cas2a++;
-                      }
-                      //case IV
-                      if(F[i][j]>1-(1/2)*tan(alpha[i][j]) and F[i][j]<1){
-                          //cas4a++;
-                      }
-                  }
-                  if(alpha[i][j]> M_PI_4 and alpha[i][j] < M_PI_2){
-                      //case I
-                      if(F[i][j]>0 and F[i][j]<(1/2)/tan(alpha[i][j])){
-                          //cas1b++;
-                      }
-                      //case III
-                      if(F[i][j]>(1/2)/tan(alpha[i][j]) and F[i][j]<1-(1/2)/tan(alpha[i][j])){
-                          //cas3b++;
-                      }
-                      //case IV
-                      if(F[i][j]>1-(1/2)/tan(alpha[i][j]) and F[i][j]<1){
-                          //cas4b++;
-                      }
-                  }
-              }
-*/          }
+        }
       }
-      for(int i=0;i<22; i++){
-          for(int j=0; j<102; j++){
-            if(SB[i][j]!=0 or ST[i][j] or SR[i][j] or SL[i][j]){
-                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SB="<<SB[i][j];
-                qDebug()<<"i="<<i<<" "<<"j="<<j<<"ST="<<ST[i][j];
-                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SR="<<SR[i][j];
-                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SL="<<SL[i][j];
-            }
-          }
-      }
+      int a=1;
+      int b=90;
+      qDebug()<<SB[a][b]<<SR[a][b]<<ST[a][b]<<SL[a][b];
+
+//      for(int i=0;i<22; i++){
+//          for(int j=0; j<102; j++){
+//            if(SB[i][j]!=0 or ST[i][j]!=0 or SR[i][j]!=0 or SL[i][j]!=0){
+//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SB="<<SB[i][j];
+//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"ST="<<ST[i][j];
+//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SR="<<SR[i][j];
+//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SL="<<SL[i][j];
+//            }
+//          }
+//      }
 }
 
 MainWindow::~MainWindow()
