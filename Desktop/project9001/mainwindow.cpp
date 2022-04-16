@@ -10,42 +10,35 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new QGraphicsScene();
     ui->graphicsView->setScene(scene);
     //делаем сеточку
-    int h=10;
-    //double alpha =1;
-    double x[22][102];
-    double y[22][102];
-    double sizeF[22][102];
-    double sizex[22][102];
-    double sizey[22][102];
-    double F[22][102];
-    double Nx[22][102];
-    double Ny[22][102];
+    int h=20;
+    int ii = 22;
+    int jj = 102;
+    double x[ii][jj];
+    double y[ii][jj];
+    double sizeF[ii][jj];
+    double sizex[ii][jj];
+    double sizey[ii][jj];
+    double F[ii][jj];
+    double Nx[ii][jj];
+    double Ny[ii][jj];
     double eps = pow(10, -30);
-    double alpha[22][102];
-    double SB[22][102];
-    double ST[22][102];
-    double SR[22][102];
-    double SL[22][102];
+    double alpha[ii][jj];
+    double SB[ii][jj];
+    double ST[ii][jj];
+    double SR[ii][jj];
+    double SL[ii][jj];
     int CS;
-    int temp=0;
 
     int n=0;
-    for(int i=0;i<22; i++){
-        for(int j=0; j<102; j++){
+    for(int i=0;i<ii; i++){
+        for(int j=0; j<jj; j++){
             x[i][j]=h*i;
             y[i][j]=h*j;
             n++;
 
             scene->addRect(QRectF(x[i][j],(-1)*y[i][j],h,h),QPen(Qt::black), QBrush(Qt::cyan));
-
-            /*qDebug()<<i<<"  "<<j<< " x  "<<x[i][j];
-            qDebug()<<i<<"  "<<j<< " y  "<<y[i][j];
-            qDebug();*/
         }
     }
-    //    qDebug()<<n;
-
-    scene->addRect(x[0][0],(-1)*y[0][0],x[21][101],(-1)*y[21][101]);
 
     //пробегаемся по массиву
     QFile file("C:/Users/oneone/Downloads/F.dat");
@@ -53,8 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     {
         while(!file.atEnd())
         {
-            for (int i=0;i<22; i++){
-                for (int j=0; j<102; j++){
+            for (int i=0;i<ii; i++){
+                for (int j=0; j<jj; j++){
                     //читаем строку
                     QString str = file.readLine();
                     //Делим строку на слова разделенные пробелом
@@ -76,19 +69,18 @@ MainWindow::MainWindow(QWidget *parent)
         }
     }
 
-    for (int i=0; i<22; i++){
-        for(int j=0; j<102; j++){
+    for (int i=0; i<ii; i++){
+        for(int j=0; j<jj; j++){
             Nx[i][j] = -(F[i + 1][j + 1] + 2 * F[i + 1][j] + F[i + 1][j - 1] - F[i - 1][j + 1] - 2 * F[i - 1][j] - F[i - 1][j - 1]);
             Ny[i][j] = -(F[i + 1][j + 1] + 2 * F[i][j + 1] + F[i - 1][j + 1] - F[i - 1][j - 1] - 2 * F[i][j - 1] - F[i + 1][j - 1]);
         }
     }
 
     //заполнение значений альфа
-    for(int i=0; i<22; i++){
-        for (int j=0; j<102; j++){
+    for(int i=0; i<ii; i++){
+        for (int j=0; j<jj; j++){
             if((Nx[i][j]>=0 and Ny[i][j]>=0)or(Nx[i][j]<=0 and Ny[i][j]<=0)){
                 alpha[i][j]=M_PI_2-fabs(atan((Ny[i][j])/(Nx[i][j]+eps)));
-
             }
             else if((Nx[i][j]>=0 and Ny[i][j]<=0)or(Nx[i][j]<=0 and Ny[i][j]>=0)){
                 alpha[i][j]=fabs(atan((Nx[i][j])/(Ny[i][j]+eps)));
@@ -98,11 +90,14 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    for(int i=0;i<22; i++){
-        for(int j=0; j<102; j++){
+    for(int i=0;i<ii; i++){
+        for(int j=0; j<jj; j++){
             //F=1
             if(F[i][j]==1) {
-                scene->addRect(QRectF(x[i][j],(-1)*y[i][j],h,h),QPen(Qt::black), QBrush(Qt::blue));
+                scene->addRect(
+                            QRectF(x[i][j],(-1)*y[i][j],h,h),
+                            QPen(Qt::black),
+                            QBrush(Qt::red));
             }
 
 
@@ -182,6 +177,8 @@ MainWindow::MainWindow(QWidget *parent)
                                           <<QPointF(x[i][j],-SL[i][j]-y[i][j]+h)
                                           <<QPointF(x[i][j],(-1)*y[i][j]+h),
                                           QPen(Qt::black), QBrush(Qt::red));
+                        //                        qDebug()<<"i="<<i<<"j="<<j;
+                        //                        qDebug()<<"SB="<<SB[i][j]<<"SL="<<SL[i][j];
                     }
                 }
 
@@ -236,10 +233,10 @@ MainWindow::MainWindow(QWidget *parent)
                                           <<QPointF(x[i][j]+h, -y[i][j]+h)
                                           <<QPointF(x[i][j], -y[i][j]+h),
                                           QPen(Qt::red), QBrush(Qt::white));
+                    }
                 }
-            }
 
-            break;
+                break;
 
             case 3:
 
@@ -249,13 +246,12 @@ MainWindow::MainWindow(QWidget *parent)
                     ST[i][j] = F[i][j] * h - 0.5 * h / tan(alpha[i][j]);
 
                     if(SB[i][j]>0 or ST[i][j]>0){
-//                        qDebug()<<SB[i][j]<<ST[i][j];
+                        //                        qDebug()<<SB[i][j]<<ST[i][j];
                         QPolygonF polygon;
-                        //ошибка в расчетах
-                        qDebug()<<x[i][j]+h<<-y[i][j];
+                        //                        qDebug()<<x[i][j]+h<<-y[i][j];
                         scene->addPolygon(polygon
-                                          <<QPointF(ST[i][j]+x[i][j], -y[i][j])
-                                          <<QPointF(SB[i][j]+x[i][j], -y[i][j]+h)
+                                          <<QPointF(h - ST[i][j]+x[i][j], -y[i][j])
+                                          <<QPointF(h - SB[i][j]+x[i][j], -y[i][j]+h)
                                           <<QPointF(x[i][j]+h, -y[i][j]+h)
                                           <<QPointF(x[i][j]+h, -y[i][j]),
                                           QPen(Qt::red), QBrush(Qt::black));
@@ -286,7 +282,7 @@ MainWindow::MainWindow(QWidget *parent)
                     ST[i][j] = F[i][j] * h - 0.5 * h / tan(alpha[i][j]);
 
                     if(SB[i][j]>0 or ST[i][j]>0){
-//                        qDebug()<<SB[i][j]<<ST[i][j];
+                        //                        qDebug()<<SB[i][j]<<ST[i][j];
                         QPolygonF polygon;
                         scene->addPolygon(polygon
                                           <<QPointF(ST[i][j]+x[i][j], -y[i][j])
@@ -301,20 +297,22 @@ MainWindow::MainWindow(QWidget *parent)
 
             case 4:
 
-                if ((Nx[i][j] < 0.0) && (Ny[i][j] >= 0.0))
+                if ((Nx[i][j] < 0.0) && (Ny[i][j] > 0.0))
                 {
                     ST[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                     SL[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     if(h>ST[i][j]>0 || h>SL[i][j]>0){
                         //криво
-//                        qDebug()<<x[i][j]<<-y[i][j]+h;
+                        //                        qDebug()<<"i ="<<i<<"j ="<<j;
+                        //                        qDebug()<<"ST ="<<ST[i][j]<<"SL"<<SL[i][j];
                         QPolygonF polygon;
+
                         scene->addPolygon(polygon
-                                          <<QPointF(x[i][j], -y[i][j])
-                                          <<QPointF(ST[i][j]+x[i][j], -y[i][j])
                                           <<QPointF(x[i][j]+h, -y[i][j])
-                                          <<QPointF(x[i][j]+h, -y[i][j]+h)
-                                          <<QPointF(x[i][j], -y[i][j]+h),
+                                          <<QPointF(ST[i][j]+x[i][j], -y[i][j])
+                                          <<QPointF(x[i][j], SL[i][j]-y[i][j])
+                                          <<QPointF(x[i][j], -y[i][j]+h)
+                                          <<QPointF(x[i][j]+h, -y[i][j]+h),
                                           QPen(Qt::red), QBrush(Qt::green));
                     }
                 }
@@ -334,7 +332,7 @@ MainWindow::MainWindow(QWidget *parent)
                     SR[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     if(SR[i][j]>0 or SB[i][j]>0){
                         //сыпется NAN
-//                        qDebug()<<SR[i][j]<<SB[i][j];
+                        //                        qDebug()<<SR[i][j]<<SB[i][j];
                     }
                 }
 
@@ -343,7 +341,7 @@ MainWindow::MainWindow(QWidget *parent)
                     SR[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     ST[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                     if(h>SR[i][j]>0 or h>ST[i][j]>0){
-//                        qDebug()<<SR[i][j]<<ST[i][j];
+                        //                        qDebug()<<SR[i][j]<<ST[i][j];
                         QPolygonF polygon;
                         scene->addPolygon(polygon
                                           <<QPointF(x[i][j]+h, SR[i][j]-y[i][j])
@@ -355,27 +353,26 @@ MainWindow::MainWindow(QWidget *parent)
                     }
                 }
                 break;
+            }
         }
     }
-}
-//      int a=1;
-//      int b=90;
-//      qDebug()<<SB[a][b]<<SR[a][b]<<ST[a][b]<<SL[a][b];
+    //      int a=1;
+    //      int b=90;
+    //      qDebug()<<SB[a][b]<<SR[a][b]<<ST[a][b]<<SL[a][b];
 
-//      for(int i=0;i<22; i++){
-//          for(int j=0; j<102; j++){
-//            if(SB[i][j]!=0 or ST[i][j]!=0 or SR[i][j]!=0 or SL[i][j]!=0){
-//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SB="<<SB[i][j];
-//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"ST="<<ST[i][j];
-//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SR="<<SR[i][j];
-//                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SL="<<SL[i][j];
-//            }
-//          }
-//      }
+    //      for(int i=0;i<ii; i++){
+    //          for(int j=0; j<jj; j++){
+    //            if(SB[i][j]!=0 or ST[i][j]!=0 or SR[i][j]!=0 or SL[i][j]!=0){
+    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SB="<<SB[i][j];
+    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"ST="<<ST[i][j];
+    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SR="<<SR[i][j];
+    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SL="<<SL[i][j];
+    //            }
+    //          }
+    //      }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
