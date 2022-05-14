@@ -10,9 +10,13 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new QGraphicsScene();
     ui->graphicsView->setScene(scene);
     //делаем сеточку
-    int h=20;
-    int ii = 22;
-    int jj = 102;
+    int h=70;
+//    test.dat
+    int ii = 50;
+    int jj = 98;
+//    f.dat
+//    int ii = 22;
+//    int jj =102;
     double x[ii][jj];
     double y[ii][jj];
     double sizeF[ii][jj];
@@ -41,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     //пробегаемся по массиву
-    QFile file("C:/Users/oneone/Downloads/F.dat");
+    QFile file("C:/Users/oneone/Downloads/test.dat");
     if(file.open(QIODevice::ReadOnly |QIODevice::Text))
     {
         while(!file.atEnd())
@@ -97,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent)
                 scene->addRect(
                             QRectF(x[i][j],(-1)*y[i][j],h,h),
                             QPen(Qt::black),
-                            QBrush(Qt::red));
+                            QBrush(Qt::blue));
             }
 
 
@@ -124,8 +128,6 @@ MainWindow::MainWindow(QWidget *parent)
                 }
             }
 
-
-
             switch (CS)
             {
             case 1:
@@ -143,7 +145,7 @@ MainWindow::MainWindow(QWidget *parent)
                                           <<QPointF(-aaa+x[i][j]+h,(-1)*y[i][j]+h)
                                           <<QPointF(x[i][j]+h,-bbb-y[i][j]+h)
                                           <<QPointF(x[i][j]+h,(-1)*y[i][j]+h),
-                                          QPen(Qt::black), QBrush(Qt::red));
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -151,7 +153,14 @@ MainWindow::MainWindow(QWidget *parent)
                 {
                     ST[i][j] = sqrt(2.0 * F[i][j] * h * h / tan(alpha[i][j]));
                     SR[i][j] = sqrt(2.0 * F[i][j] * h * h * tan(alpha[i][j]));
-                    //ни разу не выполняется
+                    if(ST[i][j]>0 or SR[i][j]>0){
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(-ST[i][j]+h+x[i][j],-y[i][j])
+                                          <<QPointF(x[i][j]+h,-y[i][j])
+                                          <<QPointF(x[i][j]+h,SR[i][j]-y[i][j]),
+                                          QPen(Qt::black), QBrush(Qt::blue));
+                    }
                 }
 
                 if ((Nx[i][j] >= 0.0) && (Ny[i][j] < 0.0))
@@ -160,7 +169,12 @@ MainWindow::MainWindow(QWidget *parent)
                     SL[i][j] = sqrt(2.0 * F[i][j] * h * h * tan(alpha[i][j]));
 
                     if(ST[i][j]>0 or SL[i][j]>0){
-                        //выводит некорректное значение
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(ST[i][j]+x[i][j],-y[i][j])
+                                          <<QPointF(x[i][j],SL[i][j]-y[i][j])
+                                          <<QPointF(x[i][j],-y[i][j]),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -176,9 +190,7 @@ MainWindow::MainWindow(QWidget *parent)
                                           <<QPointF(SB[i][j]+x[i][j],(-1)*y[i][j]+h)
                                           <<QPointF(x[i][j],-SL[i][j]-y[i][j]+h)
                                           <<QPointF(x[i][j],(-1)*y[i][j]+h),
-                                          QPen(Qt::black), QBrush(Qt::red));
-                        //                        qDebug()<<"i="<<i<<"j="<<j;
-                        //                        qDebug()<<"SB="<<SB[i][j]<<"SL="<<SL[i][j];
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -198,7 +210,7 @@ MainWindow::MainWindow(QWidget *parent)
                                           <<QPointF(x[i][j]+h, -SR[i][j]-y[i][j]+h)
                                           <<QPointF(x[i][j]+h, -y[i][j]+h)
                                           <<QPointF(x[i][j], -y[i][j]+h),
-                                          QPen(Qt::red), QBrush(Qt::white));
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -208,7 +220,13 @@ MainWindow::MainWindow(QWidget *parent)
                     SR[i][j] = F[i][j] * h + 0.5 * h * tan(alpha[i][j]);
 
                     if (SL[i][j]>0 or SR[i][j]>0){
-                        //ни разу не заходит в это условие
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(x[i][j], -y[i][j])
+                                          <<QPointF(x[i][j], SL[i][j]-y[i][j])
+                                          <<QPointF(x[i][j]+h, SR[i][j]-y[i][j])
+                                          <<QPointF(x[i][j]+h, -y[i][j]),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -217,7 +235,14 @@ MainWindow::MainWindow(QWidget *parent)
                     SL[i][j] = F[i][j] * h + 0.5 * h * tan(alpha[i][j]);
                     SR[i][j] = F[i][j] * h - 0.5 * h * tan(alpha[i][j]);
                     if (SL[i][j]>0 or SR[i][j]>0){
-                        //ни разу не заходит в это условие
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(x[i][j], -y[i][j])
+                                          <<QPointF(x[i][j], SL[i][j]-y[i][j])
+                                          <<QPointF(x[i][j]+h, SR[i][j]-y[i][j])
+                                          <<QPointF(x[i][j]+h, -y[i][j]),
+                                          QPen(Qt::black), QBrush(Qt::blue));
+
                     }
                 }
 
@@ -232,7 +257,7 @@ MainWindow::MainWindow(QWidget *parent)
                                           <<QPointF(x[i][j]+h, -SR[i][j]-y[i][j]+h)
                                           <<QPointF(x[i][j]+h, -y[i][j]+h)
                                           <<QPointF(x[i][j], -y[i][j]+h),
-                                          QPen(Qt::red), QBrush(Qt::white));
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -246,15 +271,13 @@ MainWindow::MainWindow(QWidget *parent)
                     ST[i][j] = F[i][j] * h - 0.5 * h / tan(alpha[i][j]);
 
                     if(SB[i][j]>0 or ST[i][j]>0){
-                        //                        qDebug()<<SB[i][j]<<ST[i][j];
                         QPolygonF polygon;
-                        //                        qDebug()<<x[i][j]+h<<-y[i][j];
                         scene->addPolygon(polygon
                                           <<QPointF(h - ST[i][j]+x[i][j], -y[i][j])
                                           <<QPointF(h - SB[i][j]+x[i][j], -y[i][j]+h)
                                           <<QPointF(x[i][j]+h, -y[i][j]+h)
                                           <<QPointF(x[i][j]+h, -y[i][j]),
-                                          QPen(Qt::red), QBrush(Qt::black));
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -263,7 +286,14 @@ MainWindow::MainWindow(QWidget *parent)
                     SB[i][j] = F[i][j] * h - 0.5 * h / tan(alpha[i][j]);
                     ST[i][j] = F[i][j] * h + 0.5 * h / tan(alpha[i][j]);
                     if(SB[i][j]>0 or ST[i][j]>0){
-                        //не выполняется
+                        //часть криво wat
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(h-ST[i][j]+x[i][j], -y[i][j])
+                                          <<QPointF(h - SB[i][j]+x[i][j], -y[i][j]+h)
+                                          <<QPointF(x[i][j]+h, -y[i][j]+h)
+                                          <<QPointF(x[i][j]+h, -y[i][j]),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -272,7 +302,14 @@ MainWindow::MainWindow(QWidget *parent)
                     SB[i][j] = F[i][j] * h - 0.5 * h / tan(alpha[i][j]);
                     ST[i][j] = F[i][j] * h + 0.5 * h / tan(alpha[i][j]);
                     if(SB[i][j]>0 or ST[i][j]>0){
-                        //не выполняется
+                        //часть криво wat
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(ST[i][j]+x[i][j], -y[i][j])
+                                          <<QPointF(SB[i][j]+x[i][j], -y[i][j]+h)
+                                          <<QPointF(x[i][j], -y[i][j]+h)
+                                          <<QPointF(x[i][j], -y[i][j]),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -282,14 +319,13 @@ MainWindow::MainWindow(QWidget *parent)
                     ST[i][j] = F[i][j] * h - 0.5 * h / tan(alpha[i][j]);
 
                     if(SB[i][j]>0 or ST[i][j]>0){
-                        //                        qDebug()<<SB[i][j]<<ST[i][j];
                         QPolygonF polygon;
                         scene->addPolygon(polygon
                                           <<QPointF(ST[i][j]+x[i][j], -y[i][j])
                                           <<QPointF(SB[i][j]+x[i][j], -y[i][j]+h)
                                           <<QPointF(x[i][j], -y[i][j]+h)
                                           <<QPointF(x[i][j], -y[i][j]),
-                                          QPen(Qt::red), QBrush(Qt::black));
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -302,18 +338,15 @@ MainWindow::MainWindow(QWidget *parent)
                     ST[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                     SL[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     if(h>ST[i][j]>0 || h>SL[i][j]>0){
-                        //криво
-                        //                        qDebug()<<"i ="<<i<<"j ="<<j;
-                        //                        qDebug()<<"ST ="<<ST[i][j]<<"SL"<<SL[i][j];
                         QPolygonF polygon;
 
                         scene->addPolygon(polygon
+                                          <<QPointF(x[i][j],h-SL[i][j]-y[i][j])
+                                          <<QPointF(x[i][j]-ST[i][j]+h,-y[i][j])
                                           <<QPointF(x[i][j]+h, -y[i][j])
-                                          <<QPointF(ST[i][j]+x[i][j], -y[i][j])
-                                          <<QPointF(x[i][j], SL[i][j]-y[i][j])
-                                          <<QPointF(x[i][j], -y[i][j]+h)
-                                          <<QPointF(x[i][j]+h, -y[i][j]+h),
-                                          QPen(Qt::red), QBrush(Qt::green));
+                                          <<QPointF(x[i][j]+h,-y[i][j]+h)
+                                          <<QPointF(x[i][j], -y[i][j]+h),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -322,7 +355,15 @@ MainWindow::MainWindow(QWidget *parent)
                     SL[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     SB[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                     if(SL[i][j]>0 or SB[i][j]>0){
-                        //не заходим
+                        //лишние фигуры которые не особо мешают хз
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(h-SB[i][j]+x[i][j],(-1)*y[i][j]+h)
+                                          <<QPointF(x[i][j],SL[i][j]-y[i][j])
+                                          <<QPointF(x[i][j],-y[i][j])
+                                          <<QPointF(x[i][j]+h,-y[i][j])
+                                          <<QPointF(x[i][j]+h,-y[i][j]+h),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -331,8 +372,15 @@ MainWindow::MainWindow(QWidget *parent)
                     SB[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                     SR[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     if(SR[i][j]>0 or SB[i][j]>0){
-                        //сыпется NAN
-                        //                        qDebug()<<SR[i][j]<<SB[i][j];
+                        //лишние фигуры которые не особо мешают хз
+                        QPolygonF polygon;
+                        scene->addPolygon(polygon
+                                          <<QPointF(x[i][j],-y[i][j]+h)
+                                          <<QPointF(x[i][j],-y[i][j])
+                                          <<QPointF(x[i][j]+h,-y[i][j])
+                                          <<QPointF(x[i][j]+h,SR[i][j]-y[i][j])
+                                          <<QPointF(SB[i][j]+x[i][j],-y[i][j]+h),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
 
@@ -341,35 +389,22 @@ MainWindow::MainWindow(QWidget *parent)
                     SR[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h * tan(alpha[i][j]));
                     ST[i][j] = h - sqrt(2.0 * (1.0 - F[i][j]) * h * h / tan(alpha[i][j]));
                     if(h>SR[i][j]>0 or h>ST[i][j]>0){
-                        //                        qDebug()<<SR[i][j]<<ST[i][j];
+
+                        //перепроверить
                         QPolygonF polygon;
                         scene->addPolygon(polygon
-                                          <<QPointF(x[i][j]+h, SR[i][j]-y[i][j])
-                                          <<QPointF(ST[i][j]+x[i][j], -y[i][j])
-                                          <<QPointF(x[i][j], -y[i][j])
-                                          <<QPointF(x[i][j], -y[i][j]+h)
-                                          <<QPointF(x[i][j]+h, -y[i][j]+h),
-                                          QPen(Qt::red), QBrush(Qt::green));
+                                          <<QPointF(x[i][j],-y[i][j]+h)
+                                          <<QPointF(x[i][j],-y[i][j])
+                                          <<QPointF(x[i][j]+ST[i][j],-y[i][j])
+                                          <<QPointF(x[i][j]+h,-y[i][j]+h-SR[i][j])
+                                          <<QPointF(x[i][j]+h,-y[i][j]+h),
+                                          QPen(Qt::black), QBrush(Qt::blue));
                     }
                 }
                 break;
             }
         }
     }
-    //      int a=1;
-    //      int b=90;
-    //      qDebug()<<SB[a][b]<<SR[a][b]<<ST[a][b]<<SL[a][b];
-
-    //      for(int i=0;i<ii; i++){
-    //          for(int j=0; j<jj; j++){
-    //            if(SB[i][j]!=0 or ST[i][j]!=0 or SR[i][j]!=0 or SL[i][j]!=0){
-    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SB="<<SB[i][j];
-    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"ST="<<ST[i][j];
-    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SR="<<SR[i][j];
-    //                qDebug()<<"i="<<i<<" "<<"j="<<j<<"SL="<<SL[i][j];
-    //            }
-    //          }
-    //      }
 }
 
 MainWindow::~MainWindow()

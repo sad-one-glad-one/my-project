@@ -24,7 +24,10 @@ private:
 protected:
     double sizex;
     double sizey;
-    double sizeF=2244;
+//    test.dat
+    double sizeF=4900;
+//    f.dat
+//    double sizeF=2244;
 
 
 };
